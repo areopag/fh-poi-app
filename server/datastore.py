@@ -1,4 +1,3 @@
-__author__ = 'Florian'
 from poit_of_interest import PointOfInterest
 
 class DataStore(object):
