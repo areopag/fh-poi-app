@@ -1,1 +1,9 @@
 */.idea/*
+*.pyc
+/server/lib/Werkzeug-0.10.4.dist-info
+/server/lib/MarkupSafe-0.23.dist-info
+/server/lib/markupsafe
+/server/lib/Jinja2-2.7.3.dist-info
+/server/lib/jinja2
+/server/lib/itsdangerous-0.24.dist-info
+/server/lib/Flask-0.10.dist-info
