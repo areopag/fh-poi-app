@@ -78,7 +78,7 @@ public partial class MainWindow: Gtk.Window
 	private void OnNewLoggerItem(object sender, LoggerItem item)
 	{
 		Application.Invoke (delegate {
-			logStore.InsertWithValues(0, item.Timestamp.ToString ("yyyy-MM-dd HH:mm:ss"), item.Subject, item.Details);
+			logStore.InsertWithValues(0, item.Timestamp.ToString ("yyyy-MM-dd HH:mm:ss.fff"), item.Subject, item.Details);
 		});
 	}
 

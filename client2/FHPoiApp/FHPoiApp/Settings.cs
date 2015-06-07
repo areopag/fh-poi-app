@@ -35,7 +35,7 @@ namespace FHPoiApp
 		public String getServerUrl()
 		{
 			// TODO
-			return "http://fh-poi-app.appspot.com/";
+			return "http://fh-poi-app.appspot.com/poi";
 		}
 
 		public void setServerUrl(String Url)
