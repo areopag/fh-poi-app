@@ -1,16 +1,46 @@
+
+import logging
 from poit_of_interest import PointOfInterest
+#import sys
+from google.appengine.ext import ndb
+#sys.modules['ndb'] = ndb
+
+POINT_OF_INTEREST = 'point_of_interest_db'
+POINT_OF_INTEREST_KEY = 'POI'
+
+logger = logging.getLogger('test')
+logger.setLevel(logging.DEBUG)
+
+class POI(ndb.Model):
+    name = ndb.StringProperty()
+    category = ndb.StringProperty()
+    creator = ndb.StringProperty()
+    description = ndb.StringProperty()
+    latitude = ndb.FloatProperty()
+    longitude = ndb.FloatProperty()
+
+
+class Entry(ndb.Model):
+    poi = ndb.StructuredProperty(POI)
+
 
 class DataStore(object):
     def __init__(self):
         # do some initialization if needed,
         self.conStr = ""
 
+
+    """
+    Inserts the PointOfInterest into the Database
+    :param poi: [PointOfInterest] new object to be saved
+    :return: [PointOfInterest] same object with updated id
+    """
     def create_poi(self, poi):
-        """
-        Inserts the PointOfInterest into the Database
-        :param poi: [PointOfInterest] new object to be saved
-        :return: [PointOfInterest] same object with updated id
-        """
+
+        #entry = Entry(parent = ndb.Key(POINT_OF_INTEREST_KEY, POINT_OF_INTEREST))
+        query = POI(name = poi.name, category = poi.category, creator = poi.creator, description = poi.description, latitude = poi.latitude, longitude = poi.longitude)
+        entry_key = query.put()
+        poi.id = entry_key.id()
         return poi
 
     def update_poi(self, poi):
@@ -19,7 +49,10 @@ class DataStore(object):
         :param poi: [PointOfInterest] object to be updated
         :return: [PointOfInterest] same object
         """
-        return poi
+
+        query = POI.get_by_id(5664683906301952)
+        logger.info("\n shit %s", query)
+        return query
 
     def remove_poi(self, poi_id):
         """
@@ -53,5 +86,27 @@ class DataStore(object):
             the value to search for as value
         :return: [PointOfInterest[]] matching poi-objects
         """
+        logger.info("\n Filter_dict: %s", filter_dict)
+        query = POI.query(POI.name == 't_name', POI.category == 't_category')
+
         pois = []
+        for poi in query:
+            #name = ndb.Key(POINT_OF_INTEREST_KEY, POI.ID)
+            #logger.info("\n shit %s", name)
+            #category = ndb.Key(POINT_OF_INTEREST_KEY, poi.category )
+            tmpPoi = PointOfInterest()
+            tmpPoi.id = 134
+            tmpPoi.name = poi.name
+            tmpPoi.category = poi.category
+            tmpPoi.creator = poi.creator
+            tmpPoi.description = poi.description
+            tmpPoi.latitude = poi.latitude
+            tmpPoi.longitude = poi.longitude
+            logger.info("\n poi_no %d %s",2, tmpPoi)
+            pois.append(tmpPoi)
+
+
+
+
+
         return pois
