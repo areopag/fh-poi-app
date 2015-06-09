@@ -1,11 +1,13 @@
 
 import logging
-from poit_of_interest import PointOfInterest
-#import sys
-from google.appengine.ext import ndb
-#sys.modules['ndb'] = ndb
+import re
 
-POINT_OF_INTEREST = 'point_of_interest_db'
+from poit_of_interest import PointOfInterest
+
+from google.appengine.ext import ndb
+
+
+
 POINT_OF_INTEREST_KEY = 'POI'
 
 logger = logging.getLogger('test')
@@ -37,76 +39,155 @@ class DataStore(object):
     """
     def create_poi(self, poi):
 
-        #entry = Entry(parent = ndb.Key(POINT_OF_INTEREST_KEY, POINT_OF_INTEREST))
         query = POI(name = poi.name, category = poi.category, creator = poi.creator, description = poi.description, latitude = poi.latitude, longitude = poi.longitude)
         entry_key = query.put()
         poi.id = entry_key.id()
+
         return poi
 
+
+
+
+    """
+    Updates to PointOfInterest with the specified poi.id in the database.
+    :param poi: [PointOfInterest] object to be updated
+    :return: [PointOfInterest] same object
+    """
     def update_poi(self, poi):
-        """
-        Updates to PointOfInterest with the specified poi.id in the database.
-        :param poi: [PointOfInterest] object to be updated
-        :return: [PointOfInterest] same object
-        """
 
-        query = POI.get_by_id(5664683906301952)
-        logger.info("\n shit %s", query)
-        return query
+        if poi == None:
+            return None
 
-    def remove_poi(self, poi_id):
-        """
-        Delete the PointOfInterest with the given id
-        :param poi_id: [int] id of poi to delete
-        """
+        query = POI.get_by_id(poi.id)
 
-    def get_all_poi(self):
-        """
-        Read all PointOfInterest from the database.
-        :return: [PointOfInterest[]] retrieved list of pois
-        """
-        pois = []
-        return pois
+        query.name = poi.name
+        query.category = poi.category
+        query.creator = poi.creator
+        query.description = poi.description
+        query.latitude = poi.latitude
+        query.longitude = poi.longitude
 
-    def get_poi_by_id(self, poi_id):
-        """
-        Reads one single PointOfInterest with the given id.
-        :param poi_id: id of poi to return
-        :return: [PointOfInterest] found poi-object, None if id not found
-        """
-        poi = None
+        query.put()
+
         return poi
 
-    def get_poi_filtered(self, filter_dict):
-        """
-        Searches the database for all PointOfInterest-entries
-        containing the values of the filter_dict combined with "and"-filters.
-        :param filter_dict: [dict({string,object})] dictionary with
-            the propertyname as key and
-            the value to search for as value
-        :return: [PointOfInterest[]] matching poi-objects
-        """
-        logger.info("\n Filter_dict: %s", filter_dict)
-        query = POI.query(POI.name == 't_name', POI.category == 't_category')
+
+    """
+    Delete the PointOfInterest with the given id
+    :param poi_id: [int] id of poi to delete
+    """
+    def remove_poi(self, poi_id):
+
+        if poi_id == None:
+            return None
+
+        query = POI.get_by_id(poi_id)
+        if query == None:
+            return None
+
+        query.key.delete()
+
+    """
+    Read all PointOfInterest from the database.
+    :return: [PointOfInterest[]] retrieved list of pois
+    """
+    def get_all_poi(self):
+
+
+        query = POI.query()
+        logger.info("\n *************** %s", query )
+        if query == None:
+            return None
 
         pois = []
         for poi in query:
-            #name = ndb.Key(POINT_OF_INTEREST_KEY, POI.ID)
-            #logger.info("\n shit %s", name)
-            #category = ndb.Key(POINT_OF_INTEREST_KEY, poi.category )
-            tmpPoi = PointOfInterest()
-            tmpPoi.id = 134
-            tmpPoi.name = poi.name
-            tmpPoi.category = poi.category
-            tmpPoi.creator = poi.creator
-            tmpPoi.description = poi.description
-            tmpPoi.latitude = poi.latitude
-            tmpPoi.longitude = poi.longitude
-            logger.info("\n poi_no %d %s",2, tmpPoi)
+            tmpPoi = self.getNewPoi(poi)
+            pois.append(tmpPoi)
+        return pois
+
+
+
+    """
+    Reads one single PointOfInterest with the given id.
+    :param poi_id: id of poi to return
+    :return: [PointOfInterest] found poi-object, None if id not found
+    """
+    def get_poi_by_id(self, poi_id):
+
+
+        if poi_id == None:
+            return None
+
+        query = POI.get_by_id(poi_id)
+        if query == None:
+            return None
+
+        tmpPoi = PointOfInterest()
+        tmpPoi.id = poi_id
+        tmpPoi.name = query.name
+        tmpPoi.category = query.category
+        tmpPoi.creator = query.creator
+        tmpPoi.description = query.description
+        tmpPoi.latitude = query.latitude
+        tmpPoi.longitude = query.longitude
+
+        return tmpPoi
+
+
+    """
+    Searches the database for all PointOfInterest-entries
+    containing the values of the filter_dict combined with "and"-filters.
+    :param filter_dict: [dict({string,object})] dictionary with
+        the propertyname as key and
+        the value to search for as value
+    :return: [PointOfInterest[]] matching poi-objects
+    """
+    def get_poi_filtered(self, filter_dict):
+
+        if filter_dict == None:
+            return None
+
+        t_name = filter_dict[0]
+        t_category = filter_dict[1]
+
+        query = POI.query(POI.name == t_name['name'], POI.category == t_category['category'])
+
+        if query == None:
+            return None
+
+        pois = []
+        for poi in query:
+            tmpPoi = self.getNewPoi(poi)
             pois.append(tmpPoi)
 
-
-
-
-
         return pois
+
+
+    """
+    Create a new point of interest and return it
+    :param poi: poi from query
+    :return: new poi
+    """
+    def getNewPoi(self, poi):
+        tmpPoi = PointOfInterest()
+        tmpPoi.id = self.getId(poi)
+        tmpPoi.name = poi.name
+        tmpPoi.category = poi.category
+        tmpPoi.creator = poi.creator
+        tmpPoi.description = poi.description
+        tmpPoi.latitude = poi.latitude
+        tmpPoi.longitude = poi.longitude
+
+        return tmpPoi
+
+
+
+    """
+    Searches within the given poi all numbers.
+    First detected number will be the id for the entry.
+    :param poi: contains the wohle entry from the db
+    :return: id
+    """
+    def getId(self, poi):
+        id = re.findall('([0-9]+)', str(poi));
+        return int(id[0]) # Cast first posistion to int

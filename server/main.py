@@ -30,11 +30,22 @@ def get_pois_filter_test():
     pois = store.get_poi_filtered([{"name": "t_name"}, {"category": "t_category"}])
     return to_json(pois)
 
+@app.route('/test/poi/get_all')
+def get_all_pois_test():
+    store = DataStore()
+    pois = store.get_all_poi()
+    return to_json(pois)
+
 @app.route('/test/poi/<int:id>/post')
 def update_poi_test(id):
     store = DataStore()
     poi = PointOfInterest.get_test_item(id)
     poi.name = "t_name_toUpdate"
+    poi.category = "t_category_toUpdate"
+    poi.creator = "t_creator_toUpdate"
+    poi.description = "_description_toUpdate"
+    poi.latitude = 20.00000
+    poi.longitude = 10.00000
     poi = store.update_poi(poi)
     return to_json(poi)
 
