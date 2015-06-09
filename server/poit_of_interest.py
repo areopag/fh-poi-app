@@ -13,15 +13,15 @@ class PointOfInterest(object):
     def validate(self):
         val_errors = []
         strings = ["name", "description", "creator", "category"]
-        ints = ["id"]
+        longs = ["id"]
         floats = ["latitude", "longitude"]
         for s in strings:
             if not self.__dict__[s] is None and not isinstance(self.__dict__[s], str):
                 self.__dict__[s] = str(self.__dict__[s])
 
-        for i in ints:
-            if not self.__dict__[i] is None and not isinstance(self.__dict__[i], int):
-                val_errors.append("[" + i + "] needs to be an integer number")
+        for i in longs:
+            if not self.__dict__[i] is None and not isinstance(self.__dict__[i], long):
+                val_errors.append("[" + i + "] needs to be an long number")
 
         for f in floats:
             if not self.__dict__[f] is None and not isinstance(self.__dict__[f], float):
@@ -35,10 +35,15 @@ class PointOfInterest(object):
     @staticmethod
     def from_request(req):
         poi = PointOfInterest()
-        for p in poi.__dict__.keys():
-            try:
-                poi.__dict__[p] = req.form[p]
-            except KeyError:
+	try:
+		poi.id = long(req.form["id"])
+		poi.name = req.form["name"]
+		poi.category = req.form["category"]
+		poi.creator = req.form["creator"]
+		poi.description = req.form["description"]
+		poi.latitude = float(req.form["latitude"])
+		poi.longitude = float(req.form["longitude"])
+	except KeyError:
                 pass
         return poi
 
