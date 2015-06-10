@@ -147,10 +147,23 @@ class DataStore(object):
         if filter_dict == None:
             return None
 
-        t_name = filter_dict[0]
-        t_category = filter_dict[1]
+	key = filter_dict.keys()[0]
+	value = filter_dict[key]
 
-        query = POI.query(POI.name == t_name['name'], POI.category == t_category['category'])
+	tolerance = 0.01
+
+	if key == "name":
+		query = POI.query(POI.name == value)
+	elif key == "latitude":
+		query = POI.query(POI.latitude >= float(value) - tolerance, POI.latitude <= float(value) + tolerance)
+	elif key == "longitude":
+		query = POI.query(POI.longitude >= float(value) - tolerance, POI.longitude <= float(value) + tolerance)
+	elif key == "creator":
+		query = POI.query(POI.creator == value)
+	elif key == "description":
+		query = POI.query(POI.description == value)
+	elif key == "category":
+		query = POI.query(POI.category == value)
 
         if query == None:
             return None
